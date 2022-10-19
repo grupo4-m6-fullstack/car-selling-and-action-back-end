@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int        @id @default(autoincrement())
+  name            String
+  email           String     @unique
+  cpf             String     @unique
+  phone           String
+  birthdate       String
+  cep             String
+  state           String
+  city            String
+  street          String
+  houseNumber     Int
+  houseComplement String?
+  role            Role
+  password        String
+  isActive        Boolean
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  Announce        Announce[]
+  Comment         Comment[]
+
+  @@map("users")
+}
+
+model Announce {
+  id          Int       @id @default(autoincrement())
+  title       String
+  year        Int
+  km          Int
+  price       Decimal   @db.Decimal(10, 2)
+  isAuction   Boolean
+  description String
+  cover_image String
+  type        Vehicle
+  isActive    Boolean
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Gallery     Gallery[]
+  Comment     Comment[]
+
+  @@map("announces")
+}
+
+model Gallery {
+  id         Int      @id @default(autoincrement())
+  urlImage   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  announceId Int
+  announce   Announce @relation(fields: [announceId], references: [id], onDelete: Cascade)
+
+  @@map("gallery")
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  comment    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  announceId Int
+  announce   Announce @relation(fields: [announceId], references: [id], onDelete: Cascade)
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+enum Role {
+  USER
+  SELLER
+}
+
+enum Vehicle {
+  MOTORCYCLE
+  CAR
+}
